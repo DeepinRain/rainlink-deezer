@@ -14,7 +14,7 @@ Support source:
 ```
 How to
 ```js
-const { Kazagumo } = require('kazagumo');
+const { Rainlink } = require('rainlink');
 const { DeezerPlugin } = require('rainlink-deezer');
 
 const rainlink = new Rainlink({
