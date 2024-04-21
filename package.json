@@ -1,6 +1,6 @@
 {
   "name": "rainlink-deezer",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "A rainlink plugin that allows you to play music on deezer",
   "main": "dist/index.js",
   "scripts": {
@@ -26,6 +26,6 @@
     "typescript": "^5.4.4"
   },
   "dependencies": {
-    "rainlink": "^0.6.4-beta5"
+    "rainlink": "^0.8.3"
   }
 }
