@@ -220,6 +220,7 @@ export class RainlinkPlugin extends SourceRainlinkPlugin {
 					title: dezzerTrack.title,
 					uri: `https://www.deezer.com/track/${dezzerTrack.id}`,
 					artworkUrl: dezzerTrack.album ? dezzerTrack.album.cover : '',
+					isrc: null
 				},
 				pluginInfo: {
 					name: 'rainlink@deezer',
