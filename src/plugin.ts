@@ -12,6 +12,10 @@ const API_URL = 'https://api.deezer.com/';
 const REGEX = /^https?:\/\/(?:www\.)?deezer\.com\/[a-z]+\/(track|album|playlist)\/(\d+)$/;
 const SHORT_REGEX = /^https:\/\/deezer\.page\.link\/[a-zA-Z0-9]{12}$/;
 
+export interface DeezerPluginOptions {
+	market?: string
+}
+
 export class RainlinkPlugin extends SourceRainlinkPlugin {
 	private manager: Rainlink | null;
 	private _search?: (query: string, options?: RainlinkSearchOptions) => Promise<RainlinkSearchResult>;
@@ -43,8 +47,11 @@ export class RainlinkPlugin extends SourceRainlinkPlugin {
 	/**
    * Initialize the plugin.
    */
-	constructor() {
+	constructor(
+		protected options: DeezerPluginOptions
+	) {
 		super();
+		if (!options.market) this.options.market == "us"
 		this.methods = {
 			track: this.getTrack.bind(this),
 			album: this.getAlbum.bind(this),
@@ -218,7 +225,7 @@ export class RainlinkPlugin extends SourceRainlinkPlugin {
 					isStream: false,
 					position: 0,
 					title: dezzerTrack.title,
-					uri: `https://www.deezer.com/track/${dezzerTrack.id}`,
+					uri: `https://www.deezer.com/track/${this.options.market}/${dezzerTrack.id}`,
 					artworkUrl: dezzerTrack.album ? dezzerTrack.album.cover : '',
 					isrc: null
 				},
