@@ -1,8 +1,4 @@
-import {
-	RainlinkSearchOptions,
-	RainlinkSearchResult,
-	RainlinkSearchResultType,
-} from 'rainlink';
+import { RainlinkSearchOptions, RainlinkSearchResult, RainlinkSearchResultType } from 'rainlink';
 import { Rainlink } from 'rainlink';
 import { RainlinkTrack } from 'rainlink';
 import { SourceRainlinkPlugin } from 'rainlink';
@@ -13,7 +9,7 @@ const REGEX = /^https?:\/\/(?:www\.)?deezer\.com\/[a-z]+\/(track|album|playlist)
 const SHORT_REGEX = /^https:\/\/deezer\.page\.link\/[a-zA-Z0-9]{12}$/;
 
 export interface DeezerPluginOptions {
-	market?: string
+	market?: string;
 }
 
 export class RainlinkPlugin extends SourceRainlinkPlugin {
@@ -21,37 +17,35 @@ export class RainlinkPlugin extends SourceRainlinkPlugin {
 	private _search?: (query: string, options?: RainlinkSearchOptions) => Promise<RainlinkSearchResult>;
 	private readonly methods: Record<string, (id: string, requester: unknown) => Promise<Result>>;
 	/**
-   * Source identify of the plugin
-   * @returns string
-   */
+	 * Source identify of the plugin
+	 * @returns string
+	 */
 	public sourceIdentify(): string {
 		return 'dz';
 	}
 
 	/**
-   * Source name of the plugin
-   * @returns string
-   */
+	 * Source name of the plugin
+	 * @returns string
+	 */
 	public sourceName(): string {
 		return 'deezer';
 	}
 
 	/**
-   * Type of the plugin
-   * @returns RainlinkPluginType
-   */
+	 * Type of the plugin
+	 * @returns RainlinkPluginType
+	 */
 	public type(): RainlinkPluginType {
 		return RainlinkPluginType.SourceResolver;
 	}
 
 	/**
-   * Initialize the plugin.
-   */
-	constructor(
-		protected options: DeezerPluginOptions
-	) {
+	 * Initialize the plugin.
+	 */
+	constructor(protected options: DeezerPluginOptions = { market: 'us' }) {
 		super();
-		if (!options.market) this.options.market == "us"
+		if (!options.market) this.options.market = 'us';
 		this.methods = {
 			track: this.getTrack.bind(this),
 			album: this.getAlbum.bind(this),
@@ -62,9 +56,9 @@ export class RainlinkPlugin extends SourceRainlinkPlugin {
 	}
 
 	/**
-   * load the plugin
-   * @param rainlink The rainlink class
-   */
+	 * load the plugin
+	 * @param rainlink The rainlink class
+	 */
 	public load(manager: Rainlink): void {
 		this.manager = manager;
 		this._search = manager.search.bind(manager);
@@ -72,9 +66,9 @@ export class RainlinkPlugin extends SourceRainlinkPlugin {
 	}
 
 	/**
-   * Unload the plugin
-   * @param rainlink The rainlink class
-   */
+	 * Unload the plugin
+	 * @param rainlink The rainlink class
+	 */
 	public unload(rainlink: Rainlink) {
 		this.manager = rainlink;
 		this.manager.search = rainlink.search.bind(rainlink);
@@ -85,6 +79,17 @@ export class RainlinkPlugin extends SourceRainlinkPlugin {
 		return 'rainlink-deezer';
 	}
 
+	/**
+	 * Search tracks or playlists using rainlink search.
+	 * @param query URI or track name query
+	 * @param options search option like RainlinkSearchOptions
+	 * @returns RainlinkSearchResult
+	 * @description
+	 * Checks if the query is a direct link or a search query.
+	 * If it's a direct link, it'll use the direct search function.
+	 * If it's a search query, it'll use the rainlink search function.
+	 * If the rainlink search function doesn't return any tracks, it'll use the direct search function.
+	 */
 	protected async search(query: string, options?: RainlinkSearchOptions): Promise<RainlinkSearchResult> {
 		const res = await this._search!(query, options);
 		if (!this.directSearchChecker(query)) return res;
@@ -93,15 +98,12 @@ export class RainlinkPlugin extends SourceRainlinkPlugin {
 	}
 
 	/**
-   * Directly search from plugin
-   * @param query URI or track name query
-   * @param options search option like RainlinkSearchOptions
-   * @returns RainlinkSearchResult
-   */
-	public async searchDirect(
-		query: string,
-		options?: RainlinkSearchOptions | undefined,
-	): Promise<RainlinkSearchResult> {
+	 * Directly search from plugin
+	 * @param query URI or track name query
+	 * @param options search option like RainlinkSearchOptions
+	 * @returns RainlinkSearchResult
+	 */
+	public async searchDirect(query: string, options?: RainlinkSearchOptions | undefined): Promise<RainlinkSearchResult> {
 		if (!this.manager || !this._search) throw new Error('rainlink-deezer is not loaded yet.');
 
 		if (!query) throw new Error('Query is required');
@@ -122,8 +124,7 @@ export class RainlinkPlugin extends SourceRainlinkPlugin {
 				const _function = this.methods[type];
 				const result: Result = await _function(id, options?.requester);
 
-				const loadType =
-          type === 'track' ? RainlinkSearchResultType.TRACK : RainlinkSearchResultType.PLAYLIST;
+				const loadType = type === 'track' ? RainlinkSearchResultType.TRACK : RainlinkSearchResultType.PLAYLIST;
 				const playlistName = result.name ?? undefined;
 
 				const tracks = result.tracks.filter(this.filterNullOrUndefined);
@@ -145,7 +146,7 @@ export class RainlinkPlugin extends SourceRainlinkPlugin {
 
 			const res = data as SearchResult;
 			return {
-				tracks: res.data.map(track => this.buildRainlinkTrack(track, requester)),
+				tracks: res.data.map((track) => this.buildRainlinkTrack(track, requester)),
 			};
 		} catch (e: any) {
 			throw new Error(e);
@@ -170,9 +171,7 @@ export class RainlinkPlugin extends SourceRainlinkPlugin {
 			const data = await request.json();
 			const album = data as Album;
 
-			const tracks = album.tracks.data
-				.filter(this.filterNullOrUndefined)
-				.map(track => this.buildRainlinkTrack(track, requester));
+			const tracks = album.tracks.data.filter(this.filterNullOrUndefined).map((track) => this.buildRainlinkTrack(track, requester));
 
 			return { tracks, name: album.title };
 		} catch (e: any) {
@@ -188,7 +187,7 @@ export class RainlinkPlugin extends SourceRainlinkPlugin {
 
 			const tracks = playlist.tracks.data
 				.filter(this.filterNullOrUndefined)
-				.map(track => this.buildRainlinkTrack(track, requester));
+				.map((track) => this.buildRainlinkTrack(track, requester));
 
 			return { tracks, name: playlist.title };
 		} catch (e: any) {
@@ -200,11 +199,7 @@ export class RainlinkPlugin extends SourceRainlinkPlugin {
 		return obj !== undefined && obj !== null;
 	}
 
-	private buildSearch(
-		playlistName?: string,
-		tracks: RainlinkTrack[] = [],
-		type?: RainlinkSearchResultType,
-	): RainlinkSearchResult {
+	private buildSearch(playlistName?: string, tracks: RainlinkTrack[] = [], type?: RainlinkSearchResultType): RainlinkSearchResult {
 		return {
 			playlistName,
 			tracks,
@@ -225,9 +220,9 @@ export class RainlinkPlugin extends SourceRainlinkPlugin {
 					isStream: false,
 					position: 0,
 					title: dezzerTrack.title,
-					uri: `https://www.deezer.com/track/${this.options.market}/${dezzerTrack.id}`,
+					uri: `https://www.deezer.com/${this.options.market}/track/${dezzerTrack.id}`,
 					artworkUrl: dezzerTrack.album ? dezzerTrack.album.cover : '',
-					isrc: null
+					isrc: null,
 				},
 				pluginInfo: {
 					name: 'rainlink@deezer',
@@ -245,43 +240,43 @@ export class RainlinkPlugin extends SourceRainlinkPlugin {
 // Interfaces
 /** @ignore */
 interface Result {
-  tracks: RainlinkTrack[];
-  name?: string;
+	tracks: RainlinkTrack[];
+	name?: string;
 }
 /** @ignore */
 interface Album {
-  title: string;
-  tracks: AlbumTracks;
+	title: string;
+	tracks: AlbumTracks;
 }
 /** @ignore */
 interface AlbumTracks {
-  data: DeezerTrack[];
-  next: string | null;
+	data: DeezerTrack[];
+	next: string | null;
 }
 /** @ignore */
 interface Playlist {
-  tracks: PlaylistTracks;
-  title: string;
+	tracks: PlaylistTracks;
+	title: string;
 }
 /** @ignore */
 interface PlaylistTracks {
-  data: DeezerTrack[];
-  next: string | null;
+	data: DeezerTrack[];
+	next: string | null;
 }
 /** @ignore */
 interface DeezerTrack {
-  data: RainlinkTrack[];
+	data: RainlinkTrack[];
 }
 /** @ignore */
 interface SearchResult {
-  exception?: {
-    severity: string;
-    message: string;
-  };
-  loadType: string;
-  playlist?: {
-    duration_ms: number;
-    name: string;
-  };
-  data: RainlinkTrack[];
+	exception?: {
+		severity: string;
+		message: string;
+	};
+	loadType: string;
+	playlist?: {
+		duration_ms: number;
+		name: string;
+	};
+	data: RainlinkTrack[];
 }
