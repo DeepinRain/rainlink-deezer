@@ -8,6 +8,7 @@ npm i rainlink-deezer
 
 Support source:
 ```
+- https://deezer.page.link/VkqxgiMvfR7tWamm6
 - https://www.deezer.com/us/playlist/53362031
 - https://www.deezer.com/us/track/6745599
 - https://www.deezer.com/us/album/103248

@@ -113,7 +113,7 @@ export class RainlinkPlugin extends SourceRainlinkPlugin {
 		if (SHORT_REGEX.test(query)) {
 			const url = new URL(query);
 			const res = await fetch(url.origin + url.pathname, { method: 'HEAD' });
-			query = String(res.headers.get('location'));
+			query = res.url;
 		}
 
 		const [, type, id] = REGEX.exec(query) || [];
