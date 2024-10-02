@@ -26,6 +26,6 @@
     "typescript": "^5.4.4"
   },
   "dependencies": {
-    "rainlink": "^1.2.4"
+    "rainlink": "^1.2.5"
   }
 }
